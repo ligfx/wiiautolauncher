@@ -8,10 +8,7 @@
 #include "patchcode.h"
 #include "videopatch.h"
 #include "fst.h"
-#include "gecko.h"
 #include "memory.h"
-#include "video_tinyload.h"
-#include "wifi_gecko.h"
 #include "identify.h"
 
 typedef int   (*app_main)(void **dst, int *size, int *offset);
@@ -50,15 +47,15 @@ u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryStrin
 	app_final appldr_final;
 
 	ret = WDVD_Read(&apploader_hdr, 0x20, APPLDR_OFFSET);
-	wifi_printf("apploader_Apploader_Run: WDVD_Read() return value = %d\n", ret);
+	printf("apploader_Apploader_Run: WDVD_Read() return value = %d\n", ret);
 	if(ret < 0)
 		return 0;
 
 	appldr_len = apploader_hdr.size + apploader_hdr.trailersize;
-	wifi_printf("apploader_Apploader_Run: appldr_len value = %08X\n", appldr_len); 
+	printf("apploader_Apploader_Run: appldr_len value = %08X\n", appldr_len); 
 
 	ret = WDVD_Read(appldr, appldr_len, APPLDR_CODE);
-	wifi_printf("apploader_Apploader_Run: WDVD_Read() return value = %d\n", ret);
+	printf("apploader_Apploader_Run: WDVD_Read() return value = %d\n", ret);
 	if(ret < 0)
 		return 0;
 	DCFlushRange(appldr, appldr_len);
@@ -66,18 +63,18 @@ u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryStrin
 
 	appldr_entry = apploader_hdr.entry;
 	appldr_entry(&appldr_init, &appldr_main, &appldr_final);
-	appldr_init(gprintf);
+	appldr_init(printf);
 
 	while(appldr_main(&dst, &len, &offset))
 	{
 		WDVD_Read(dst, len, offset);
-		wifi_printf("apploader_Apploader_Run: dst = %08X len = %08X offset = %08X\n",
+		printf("apploader_Apploader_Run: dst = %08X len = %08X offset = %08X\n",
 			(u32)dst, (u32)len, (u32)offset);
 		maindolpatches(dst, len, vidMode, vmode, vipatch, countryString, 
 						patchVidModes, aspectRatio);
 		DCFlushRange(dst, len);
 		ICInvalidateRange(dst, len);
-		prog(10);
+		// prog(10);
 	}
 	
 	return (u32)appldr_final();

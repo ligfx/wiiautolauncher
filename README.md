@@ -1,5 +1,6 @@
-# wiilauncher
-Automatically exported from code.google.com/p/wiilauncher
+# wiiautolauncher
+
+Personal modifications to wiilauncher code to automatically boot into Project M.
 
 [WiiLauncher](http://wiibrew.org/wiki/WiiLauncher) is a simple alternative to [Gecko OS](http://wiibrew.org/wiki/Gecko_OS) application. It has most of the [Gecko OS](http://wiibrew.org/wiki/Gecko_OS) features and has additional features for downloading and editing cheat codes.
 

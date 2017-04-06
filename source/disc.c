@@ -6,11 +6,9 @@
 #include <malloc.h>
 #include <ogc/lwp_watchdog.h>
 
+#include "launch.h"
 #include "memory.h"
-#include "video_tinyload.h"
-#include "wifi_gecko.h"
 #include "wdvd.h"
-#include "menu.h"
 
 #define PART_INFO_OFFSET	0x10000
 
@@ -34,9 +32,9 @@ s32 Disc_Open()
 		return ret;
 		
 	ret = WDVD_ReadDiskId((u8*)Disc_ID);
-	wifi_printf("disc_Disc_Open: WDVD_ReadDiskId() return value = %d\n", ret);
+	printf("disc_Disc_Open: WDVD_ReadDiskId() return value = %d\n", ret);
 	ret = WDVD_UnencryptedRead(&disc_hdr, 0x220, 0);
-	wifi_printf("disc_Disc_Open: WDVD_UnencryptedRead() return value = %d\n", ret);
+	printf("disc_Disc_Open: WDVD_UnencryptedRead() return value = %d\n", ret);
 	if (disc_hdr.checkngc == NGC_MAGIC) {
 		disc_type = IS_NGC_DISC;
 	} else if (disc_hdr.checkwii == WII_MAGIC) {
@@ -44,7 +42,7 @@ s32 Disc_Open()
 	} else {
 		disc_type = IS_UNK_DISC;
 	}
-	wifi_printf("disc_Disc_Open: disc_type value = %d\n", disc_type);
+	printf("disc_Disc_Open: disc_type value = %d\n", disc_type);
 	memcpy(discidname, disc_hdr.discid, 8);
 	memcpy(discidnamelong, disc_hdr.discname, 0x200);
 	
@@ -134,9 +132,9 @@ GXRModeObj *Disc_SelectVMode(u8 videoselected, u32 *rmode_reg)
 	GXRModeObj *rmode = VIDEO_GetPreferredMode(0);
 
 	bool progressive = (CONF_GetProgressiveScan() > 0) && VIDEO_HaveComponentCable();
-	wifi_printf("disc_Disc_SelectVMode: progressive value = %d\n", progressive);
+	printf("disc_Disc_SelectVMode: progressive value = %d\n", progressive);
 
-	wifi_printf("disc_Disc_SelectVMode: CONF_GetVideo() value = %d\n", CONF_GetVideo());
+	printf("disc_Disc_SelectVMode: CONF_GetVideo() value = %d\n", CONF_GetVideo());
 	switch (CONF_GetVideo())
 	{
 		case CONF_VIDEO_PAL:
@@ -159,7 +157,7 @@ GXRModeObj *Disc_SelectVMode(u8 videoselected, u32 *rmode_reg)
 	}
 
 	const char DiscRegion = ((u8*)Disc_ID)[3];
-	wifi_printf("disc_Disc_SelectVMode: DiscRegion value = %c\n", DiscRegion);
+	printf("disc_Disc_SelectVMode: DiscRegion value = %c\n", DiscRegion);
 	switch(videoselected)
 	{
 		case 0: // DEFAULT (DISC/GAME)
@@ -217,7 +215,7 @@ GXRModeObj *Disc_SelectVMode(u8 videoselected, u32 *rmode_reg)
 
 void Disc_SetVMode(GXRModeObj *rmode, u32 rmode_reg)
 {
-	video_clear();
+	// video_clear();
 
 	*Video_Mode = rmode_reg;
 	DCFlushRange((void*)Video_Mode, 4);

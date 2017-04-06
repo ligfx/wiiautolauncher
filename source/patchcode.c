@@ -1,15 +1,10 @@
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <gccore.h>
-#include <sys/unistd.h>
 
 #include "patchcode.h"
 #include "memory.h"
-#include "gecko.h"
-#include "wifi_gecko.h"
-#include "menu.h"
 #include "identify.h"
 
 u32 hooktype;
@@ -118,7 +113,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, viwiihooks, sizeof(viwiihooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: viwiihooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: viwiihooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -127,14 +122,14 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, kpadhooks, sizeof(kpadhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: kpadhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: kpadhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 
 				if(memcmp(addr_start, kpadoldhooks, sizeof(kpadoldhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: kpadoldhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: kpadoldhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -143,7 +138,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, joypadhooks, sizeof(joypadhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: joypadhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: joypadhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -152,7 +147,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, gxdrawhooks, sizeof(gxdrawhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: gxdrawhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: gxdrawhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -161,7 +156,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, gxflushhooks, sizeof(gxflushhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: gxflushhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: gxflushhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -170,7 +165,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, ossleepthreadhooks, sizeof(ossleepthreadhooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: ossleepthreadhooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: ossleepthreadhooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -179,7 +174,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				if(memcmp(addr_start, axnextframehooks, sizeof(axnextframehooks))==0)
 				{
 					patchhook((u32)addr_start, len);
-					wifi_printf("patchcode_dogamehooks: axnextframehooks at = %08X\n", addr_start);
+					printf("patchcode_dogamehooks: axnextframehooks at = %p\n", addr_start);
 					hookpatched = true;
 				}
 				break;
@@ -192,12 +187,12 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 				DCFlushRange(((u32*)addr_start)+1, 4);
 
 				multidolhook((u32)addr_start+sizeof(multidolchanhooks)-4);
-				wifi_printf("patchcode_dogamehooks: multidolchanhooks at = %08X\n", addr_start);
+				printf("patchcode_dogamehooks: multidolchanhooks at = %p\n", addr_start);
 			}
 			else if(!channel && memcmp(addr_start, multidolhooks, sizeof(multidolhooks))==0)
 			{
 				multidolhook((u32)addr_start+sizeof(multidolhooks)-4);
-				wifi_printf("patchcode_dogamehooks: multidoldolhooks at = %08X\n", addr_start);
+				printf("patchcode_dogamehooks: multidoldolhooks at = %p\n", addr_start);
 			}			
 		}
 		addr_start += 4;
@@ -205,158 +200,7 @@ bool dogamehooks(void *addr, u32 len, bool channel)
 	return hookpatched;
 }
 
-bool domenuhooks(void *addr, u32 len)
-{
-	void *addr_start = addr;
-	
-	// Patches
-	if(config_bytes[8] == 0x01){
-		patchmenu(addr_start, len, 0);	// menu size
-		return menuhook;
-	}
-	// Region Free
-	if(config_bytes[9] == 0x01){
-		patchmenu(addr_start, len, 2);	
-	}
-	// Health check
-	if(config_bytes[11] == 0x01){
-		patchmenu(addr_start, len, 3);
-	}
-	// No copy bit remove
-	if(config_bytes[10] == 0x01){
-		patchmenu(addr_start, len, 4);
-	}
-	
-	if (config_bytes[2] != 0x00) {
-		menuhook = 0;
-		patchmenu(addr_start, len, 1);
-	}
-	
-	// move dvd channel
-	patchmenu(addr_start, len, 5);
-	
-	DCFlushRange(addr_start, len);
-	
-	return menuhook;
-}
 
-void patchmenu(void *addr, u32 len, int patchnum)
-{
-	void *addr_start = addr;
-	void *addr_end = addr+len;
-	
-	wifi_printf("patchcode_patchmenu: patchnum value = %d\n", patchnum);
-	while(addr_start < addr_end)
-	{
-		switch (patchnum)
-		{
-			case 0:
-				if(memcmp(addr_start, recoveryhooks, sizeof(recoveryhooks))==0){
-					patchhook3((u32)addr_start, len);
-					menuhook = 1;
-					wifi_printf("patchcode_patchmenu: found recoveryhooks = %08X\n", (u32)addr_start);
-				}
-				break;
-				
-			case 1:
-				if(memcmp(addr_start, viwiihooks, sizeof(viwiihooks))==0){
-					patchhook2((u32)addr_start, len);
-					menuhook = 1;
-					wifi_printf("patchcode_patchmenu: found viwiihooks = %08X\n", (u32)addr_start);
-				}
-				
-				break;
-				
-			case 2:
-				// jap region free	
-				if(memcmp(addr_start, regionfreehooks, sizeof(regionfreehooks))==0){
-					regionfreejap((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found regionfreejap = %08X\n", (u32)addr_start);
-				}
-				
-				// usa region free
-				if(memcmp(addr_start, regionfreehooks, sizeof(regionfreehooks))==0){
-					regionfreeusa((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found regionfreeusa = %08X\n", (u32)addr_start);
-				}
-				
-				// pal region free
-				if(memcmp(addr_start, regionfreehooks, sizeof(regionfreehooks))==0){
-					regionfreepal((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found regionfreepal = %08X\n", (u32)addr_start);
-				}
-				
-				// skip disc update
-				if(memcmp(addr_start, updatecheckhook, sizeof(updatecheckhook))==0){
-					patchupdatecheck((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found updatecheckhook = %08X\n", (u32)addr_start);
-				}
-				break;
-				
-				// button skip
-			case 3:
-				if(memcmp(addr_start, healthcheckhook, sizeof(healthcheckhook))==0){
-					removehealthcheck((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found healthcheckhook = %08X\n", (u32)addr_start);
-				}
-				break;
-				
-				// no copy flags
-			case 4:
-				// Remove the actual flag so can copy back
-				if(memcmp(addr_start, nocopyflag5, sizeof(nocopyflag5))==0){
-					copyflagcheck5((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag5 = %08X\n", (u32)addr_start);
-				}
-				
-				
-				if(memcmp(addr_start, nocopyflag1, sizeof(nocopyflag1))==0){
-					copyflagcheck1((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag1 = %08X\n", (u32)addr_start);
-				}
-				
-				if(memcmp(addr_start, nocopyflag2, sizeof(nocopyflag2))==0){
-					copyflagcheck2((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag2 = %08X\n", (u32)addr_start);
-				}
-				
-				if(memcmp(addr_start, nocopyflag3, sizeof(nocopyflag2))==0){
-					copyflagcheck3((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag3 = %08X\n", (u32)addr_start);
-				}
-
-				if(memcmp(addr_start, nocopyflag4, sizeof(nocopyflag4))==0){
-					copyflagcheck4((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag4 = %08X\n", (u32)addr_start);
-				}
-				
-				if(memcmp(addr_start, nocopyflag6, sizeof(nocopyflag6))==0){
-					copyflagcheck6((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag6 = %08X\n", (u32)addr_start);
-				}
-				
-				if(memcmp(addr_start, nocopyflag7, sizeof(nocopyflag7))==0){
-					copyflagcheck7((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag7 = %08X\n", (u32)addr_start);
-				}
-				
-				if(memcmp(addr_start, nocopyflag8, sizeof(nocopyflag8))==0){
-					copyflagcheck8((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found nocopyflag8 = %08X\n", (u32)addr_start);
-				}				
-				break;
-				
-				// move disc channel
-			case 5:
-				if(memcmp(addr_start, movedvdpatch, sizeof(movedvdpatch))==0){
-					movedvdhooks((u32)addr_start, len);
-					wifi_printf("patchcode_patchmenu: found movvedvdhooks = %08X\n", (u32)addr_start);
-				}
-				break;
-		}
-		addr_start += 4;
-	}
-}
 
 void langpatcher(void *addr, u32 len)
 {
@@ -368,7 +212,7 @@ void langpatcher(void *addr, u32 len)
 		if(memcmp(addr_start, langpatch, sizeof(langpatch))==0)
 			if(configbytes[0] != 0xCD) {
 				langvipatch((u32)addr_start, len, configbytes[0]);
-				wifi_printf("patchcode_langpatcher: langpatcher found at %08X\n", addr_start);
+				printf("patchcode_langpatcher: langpatcher found at %p\n", addr_start);
 			}
 		addr_start += 4;
 	}
@@ -383,7 +227,7 @@ void vidolpatcher(void *addr, u32 len)
 	{
 		if(memcmp(addr_start, vipatchcode, sizeof(vipatchcode))==0) {
 			vipatch((u32)addr_start, len);
-			wifi_printf("patchcode_vidolpatcher: vidolpatcher found at %08X\n", addr_start);
+			printf("patchcode_vidolpatcher: vidolpatcher found at %p\n", addr_start);
 		}
 		addr_start += 4;
 	}
@@ -393,7 +237,7 @@ void PatchAspectRatio(void *addr, u32 len, u8 aspect)
 {
 	if(aspect > 1)
 		return;
-	wifi_printf("patchcode_PatchAspectRatio: aspect value = %d\n", aspect);
+	printf("patchcode_PatchAspectRatio: aspect value = %d\n", aspect);
 
 	static const u32 aspect_searchpattern1[5] = {
 		0x9421FFF0, 0x7C0802A6, 0x38800001, 0x90010014, 0x38610008
@@ -414,7 +258,7 @@ void PatchAspectRatio(void *addr, u32 len, u8 aspect)
 		   && (memcmp(addr_start + 4 + sizeof(aspect_searchpattern1), aspect_searchpattern2, sizeof(aspect_searchpattern2)) == 0))
 		{
 			*((u32 *)(addr_start+0x44)) = (0x38600000 | aspect);
-			wifi_printf("patchcode_PatchAspectRatio: aspect patch found at %08X\n", addr_start);
+			printf("patchcode_PatchAspectRatio: aspect patch found at %p\n", addr_start);
 			break;
 		}
 		addr_start += 4;
@@ -428,7 +272,7 @@ void PatchCountryStrings(void *Address, int Size)
 	u8 *Addr = (u8*)Address;
 	int wiiregion = CONF_GetRegion();
 
-	wifi_printf("patchcode_PatchCountryStrings: wiiregion value = %d\n", wiiregion);
+	printf("patchcode_PatchCountryStrings: wiiregion value = %d\n", wiiregion);
 	switch(wiiregion)
 	{
 		case CONF_REGION_JP:
@@ -459,7 +303,7 @@ void PatchCountryStrings(void *Address, int Size)
 	}
 
 	const char DiscRegion = ((u8*)Disc_ID)[3];
-	wifi_printf("PatchCountryStrings: DiscRegion value = %c\n", DiscRegion);
+	printf("PatchCountryStrings: DiscRegion value = %c\n", DiscRegion);
 	switch(DiscRegion)
 	{
 		case 'J':

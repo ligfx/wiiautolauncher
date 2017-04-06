@@ -1,7 +1,6 @@
+#include <stdio.h>
 #include <string.h>
 #include <ogcsys.h>
-
-#include "wifi_gecko.h"
 
 #define IOCTL_DI_READID					0x70
 #define IOCTL_DI_READ					0x71
@@ -35,7 +34,7 @@ s32 WDVD_Init(void)
 	if(di_fd < 0)
 	{
 		di_fd = IOS_Open(di_fs, 0);
-		wifi_printf("wdvd_WDVD_Init: di_fd value = %d\n", di_fd);
+		printf("wdvd_WDVD_Init: di_fd value = %d\n", di_fd);
 		if (di_fd < 0) 
 			return di_fd;
 	}

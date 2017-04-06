@@ -1,19 +1,13 @@
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <gccore.h>
-#include <sys/unistd.h>
-#include <ogc/ipc.h>
 
 #include "fst.h"
-#include "gecko.h"
-#include "memory.h"
 #include "patchcode.h"
 #include "codehandler.h"
 #include "codehandleronly.h"
 #include "multidol.h"
-#include "wifi_gecko.h"
 
 u8 *codelistend;
 void *codelist;
@@ -35,7 +29,7 @@ void ocarina_set_codes(void *list, u8 *listend, u8 *cheats, u32 cheatSize)
 	codelistend = listend;
 	code_buf = cheats;
 	code_size = cheatSize;
-	wifi_printf("fst_ocarina_set_codes: code_size value = %08X\n", code_size);
+	printf("fst_ocarina_set_codes: code_size value = %08X\n", code_size);
 	if(code_size <= 0)
 	{
 		code_buf = NULL;
@@ -44,7 +38,7 @@ void ocarina_set_codes(void *list, u8 *listend, u8 *cheats, u32 cheatSize)
 	}
 	if (code_size > (u32)codelistend - (u32)codelist)
 	{
-		wifi_printf("fst_ocarina_set_codes: codes are too long\n");
+		printf("fst_ocarina_set_codes: codes are too long\n");
 		code_buf = NULL;
 		code_size = 0;
 		return;
@@ -55,33 +49,33 @@ void load_handler()
 {
 	if(debuggerselect == 0x01)
 	{
-		wifi_printf("fst_load_handler: debugger selected\n");
+		printf("fst_load_handler: debugger selected\n");
 		memcpy((void*)0x80001800, codehandler, codehandler_size);
 		if(code_size > 0 && code_buf)
 		{
-			wifi_printf("fst_load_handler: codes found\n");
+			printf("fst_load_handler: codes found\n");
 			memcpy((void*)0x80001CDE, &codelist, 2);
 			memcpy((void*)0x80001CE2, ((u8*) &codelist) + 2, 2);
 			memcpy((void*)0x80001F5A, &codelist, 2);
 			memcpy((void*)0x80001F5E, ((u8*) &codelist) + 2, 2);
 		}
 		else
-			wifi_printf("fst_load_handler: no codes found\n");
+			printf("fst_load_handler: no codes found\n");
 		DCFlushRange((void*)0x80001800, codehandler_size);
 		ICInvalidateRange((void*)0x80001800, codehandler_size);
 	}
 	else
 	{
-		wifi_printf("fst_load_handler: no debugger selected\n");
+		printf("fst_load_handler: no debugger selected\n");
 		memcpy((void*)0x80001800, codehandleronly, codehandleronly_size);
 		if(code_size > 0 && code_buf)
 		{
-			wifi_printf("fst_load_handler: codes found\n");
+			printf("fst_load_handler: codes found\n");
 			memcpy((void*)0x80001906, &codelist, 2);
 			memcpy((void*)0x8000190A, ((u8*) &codelist) + 2, 2);
 		}
 		else
-			wifi_printf("fst_load_handler: no codes found\n");
+			printf("fst_load_handler: no codes found\n");
 		DCFlushRange((void*)0x80001800, codehandleronly_size);
 		ICInvalidateRange((void*)0x80001800, codehandleronly_size);
 	}
@@ -129,7 +123,7 @@ int ocarina_do_code()
 	if(codelist)
 		memset(codelist, 0, (u32)codelistend - (u32)codelist);
 
-	wifi_printf("fst_ocarina_do_code: code_size value = %08X\n", code_size);
+	printf("fst_ocarina_do_code: code_size value = %08X\n", code_size);
 	if(code_size > 0 && code_buf)
 	{
 		memcpy(codelist, code_buf, code_size);
